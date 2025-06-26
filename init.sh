@@ -69,3 +69,7 @@ echo "Make sure this directory is in your \$PATH"
 
 FILEPATH=$(readlink -f "docker/data/default.conf")
 ln -s $FILEPATH $HOME/.cache/StartTree/default.conf
+
+python3 -m venv ./venv
+source ./venv/bin/activate
+pip install -r requirements.txt

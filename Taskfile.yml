@@ -1,0 +1,12 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - |
+        ./init.sh
+        source ./venv/bin/activate
+        python3 ./generate.py
+    silent: true
