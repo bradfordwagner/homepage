@@ -6,7 +6,19 @@ tasks:
   default:
     cmds:
       - |
+        watchexec \
+          -r \
+          -w ~/.config/StartTree \
+          -w {{ .USER_WORKING_DIR }} \
+          -- task run
+
+  run:
+    cmds:
+      - |
+        set -x
         ./init.sh
         source ./venv/bin/activate
         python3 ./generate.py
+        cd ~/.cache/StartTree
+        python3 -m http.server 8881
     silent: true
