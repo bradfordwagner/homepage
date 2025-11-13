@@ -1006,7 +1006,12 @@
           const html = sortedResults.map((result, index) => {
             const bookmark = result.item;
             const selected = index === selectedIndex ? "selected" : "";
-            const displayName = bookmark.display && bookmark.display !== bookmark.name ? bookmark.name + " (" + bookmark.display + ")" : bookmark.name;
+            let displayName = bookmark.name;
+            if (bookmark.display && bookmark.display !== bookmark.name) {
+              const pathParts = bookmark.name.split("/");
+              pathParts[pathParts.length - 1] = bookmark.display;
+              displayName = pathParts.join("/");
+            }
             return '<div class="result-item ' + selected + '" data-index="' + index + '" data-url="' + bookmark.url + '"><span class="result-name">' + displayName + "</span></div>";
           }).join("");
           resultsContainer.innerHTML = html;
