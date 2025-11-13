@@ -64,9 +64,13 @@ def collect_bookmarks(file_dict):
     """Collect all bookmarks from the config into a flat list."""
     bookmarks = []
     
-    for tree_key in file_dict:
+    for tree_key in sorted(file_dict.keys()):
         if tree_key.split("_")[0] == "tree":
             bookmarks.extend(collect_bookmarks_recursive(file_dict[tree_key]))
+    
+    # Add index to preserve original order
+    for i, bookmark in enumerate(bookmarks):
+        bookmark['index'] = i
     
     return bookmarks
 

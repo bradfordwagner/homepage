@@ -23,6 +23,7 @@ tasks:
     cmds:
       - |
         set -x
+        lsof -ti :8881 | xargs -r kill
         ./init.sh
         npm run build
         source ./venv/bin/activate

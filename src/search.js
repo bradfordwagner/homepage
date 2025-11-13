@@ -27,7 +27,14 @@ window.initializeSearch = function(bookmarks) {
       return;
     }
     
-    const html = results.map((result, index) => {
+    // Sort results by original index to maintain tree order
+    const sortedResults = results.slice().sort((a, b) => {
+      const indexA = a.item.index !== undefined ? a.item.index : 0;
+      const indexB = b.item.index !== undefined ? b.item.index : 0;
+      return indexA - indexB;
+    });
+    
+    const html = sortedResults.map((result, index) => {
       const bookmark = result.item;
       const selected = index === selectedIndex ? 'selected' : '';
       const displayName = bookmark.display && bookmark.display !== bookmark.name ? 
@@ -97,11 +104,13 @@ window.initializeSearch = function(bookmarks) {
   function filterTreeVisualization(query) {
     const treeItems = document.querySelectorAll('.tree-item');
     const treeCategories = document.querySelectorAll('.tree-category');
+    const columns = document.querySelectorAll('.column');
     
     if (!query) {
       // Show all items
       treeItems.forEach(item => item.classList.remove('hidden'));
       treeCategories.forEach(cat => cat.classList.remove('hidden'));
+      columns.forEach(col => col.classList.remove('hidden'));
       return;
     }
     
@@ -137,6 +146,18 @@ window.initializeSearch = function(bookmarks) {
         category.classList.remove('hidden');
       }
     });
+    
+    // Hide/show columns based on whether they have any visible content
+    columns.forEach(column => {
+      const visibleItems = column.querySelectorAll('.tree-item:not(.hidden)');
+      const visibleCategories = column.querySelectorAll('.tree-category:not(.hidden)');
+      
+      if (visibleItems.length === 0 && visibleCategories.length === 0) {
+        column.classList.add('hidden');
+      } else {
+        column.classList.remove('hidden');
+      }
+    });
   }
 
   searchInput.addEventListener('input', (e) => {
@@ -155,9 +176,15 @@ window.initializeSearch = function(bookmarks) {
     }
     
     const results = fzf.find(query);
-    filteredBookmarks = results;
-    selectedIndex = results.length > 0 ? 0 : -1;
-    renderResults(results);
+    // Sort results by original index to maintain tree order
+    const sortedResults = results.slice().sort((a, b) => {
+      const indexA = a.item.index !== undefined ? a.item.index : 0;
+      const indexB = b.item.index !== undefined ? b.item.index : 0;
+      return indexA - indexB;
+    });
+    filteredBookmarks = sortedResults;
+    selectedIndex = sortedResults.length > 0 ? 0 : -1;
+    renderResults(sortedResults);
   });
 
   searchInput.addEventListener('keydown', (e) => {
@@ -205,7 +232,7 @@ window.initializeSearch = function(bookmarks) {
   // Auto-focus the search input on page load
   searchInput.focus();
   
-  // Show all bookmarks on initial load
+  // Show all bookmarks on initial load (already in tree order)
   const initialResults = bookmarks.map(item => ({ item, score: 0 }));
   filteredBookmarks = initialResults;
   selectedIndex = 0;

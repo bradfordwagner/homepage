@@ -998,7 +998,12 @@
             resultsContainer.style.display = "none";
             return;
           }
-          const html = results.map((result, index) => {
+          const sortedResults = results.slice().sort((a, b) => {
+            const indexA = a.item.index !== void 0 ? a.item.index : 0;
+            const indexB = b.item.index !== void 0 ? b.item.index : 0;
+            return indexA - indexB;
+          });
+          const html = sortedResults.map((result, index) => {
             const bookmark = result.item;
             const selected = index === selectedIndex ? "selected" : "";
             const displayName = bookmark.display && bookmark.display !== bookmark.name ? bookmark.name + " (" + bookmark.display + ")" : bookmark.name;
@@ -1051,9 +1056,11 @@
         function filterTreeVisualization(query) {
           const treeItems = document.querySelectorAll(".tree-item");
           const treeCategories = document.querySelectorAll(".tree-category");
+          const columns = document.querySelectorAll(".column");
           if (!query) {
             treeItems.forEach((item) => item.classList.remove("hidden"));
             treeCategories.forEach((cat) => cat.classList.remove("hidden"));
+            columns.forEach((col) => col.classList.remove("hidden"));
             return;
           }
           const results = fzf.find(query);
@@ -1079,6 +1086,15 @@
               category.classList.remove("hidden");
             }
           });
+          columns.forEach((column) => {
+            const visibleItems = column.querySelectorAll(".tree-item:not(.hidden)");
+            const visibleCategories = column.querySelectorAll(".tree-category:not(.hidden)");
+            if (visibleItems.length === 0 && visibleCategories.length === 0) {
+              column.classList.add("hidden");
+            } else {
+              column.classList.remove("hidden");
+            }
+          });
         }
         searchInput.addEventListener("input", (e) => {
           const query = e.target.value;
@@ -1091,9 +1107,14 @@
             return;
           }
           const results = fzf.find(query);
-          filteredBookmarks = results;
-          selectedIndex = results.length > 0 ? 0 : -1;
-          renderResults(results);
+          const sortedResults = results.slice().sort((a, b) => {
+            const indexA = a.item.index !== void 0 ? a.item.index : 0;
+            const indexB = b.item.index !== void 0 ? b.item.index : 0;
+            return indexA - indexB;
+          });
+          filteredBookmarks = sortedResults;
+          selectedIndex = sortedResults.length > 0 ? 0 : -1;
+          renderResults(sortedResults);
         });
         searchInput.addEventListener("keydown", (e) => {
           if (e.key === "ArrowDown" || e.key === "Tab" && !e.shiftKey) {

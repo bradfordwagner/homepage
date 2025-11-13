@@ -78,6 +78,17 @@ span {
 .column {
     flex: 1;
     min-width: 250px;
+    transition: opacity 0.15s ease-out, max-height 0.15s ease-out, margin 0.15s ease-out, padding 0.15s ease-out, min-width 0.15s ease-out;
+}
+
+.column.hidden {
+    opacity: 0;
+    max-height: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    flex: 0;
 }
 
 .tree > ul {
