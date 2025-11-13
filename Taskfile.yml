@@ -9,7 +9,14 @@ tasks:
         watchexec \
           -r \
           -w ~/.config/StartTree \
-          -w {{ .USER_WORKING_DIR }} \
+          -w {{ .USER_WORKING_DIR }}/config.yaml \
+          -w {{ .USER_WORKING_DIR }}/generate.py \
+          -w {{ .USER_WORKING_DIR }}/src \
+          -w {{ .USER_WORKING_DIR }}/skeletons/index.html \
+          -w {{ .USER_WORKING_DIR }}/skeletons/style.css \
+          -i '*/skeletons/search.bundle.js' \
+          -i '*/node_modules/*' \
+          -i '*/.cache/*' \
           -- task run
 
   run:
@@ -17,8 +24,8 @@ tasks:
       - |
         set -x
         ./init.sh
+        npm run build
         source ./venv/bin/activate
         python3 ./generate.py
-        cd ~/.cache/StartTree
-        python3 -m http.server 8881
+        npm run serve
     silent: true

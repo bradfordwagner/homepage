@@ -1,0 +1,29 @@
+{
+  "name": "web.homepage",
+  "version": "1.0.0",
+  "description": "A terminal-style home page replicating the tree command, modified from [this](https://notabug.org/nytly/home) start page, which no longer exists.",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js",
+    "serve": "cd ~/.cache/StartTree && npx http-server -p 8881",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bradfordwagner/homepage.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bradfordwagner/homepage/issues"
+  },
+  "homepage": "https://github.com/bradfordwagner/homepage#readme",
+  "dependencies": {
+    "fzf": "^0.5.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.0"
+  }
+}

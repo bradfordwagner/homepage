@@ -31,55 +31,78 @@ def print_keys(dictionary):
         if isinstance(dictionary[key], dict):
             print_keys(dictionary[key])
 
-def gen_list_indices(html_file, file_dict):
-    for key in file_dict:
-        value = file_dict[key]
-        print(key + "->" + str(value))
-        if not isinstance(value, list):
-            html_file.write("<li><a href=\"" + value + "\">" + key + "</a></li>")
-        else:
-            html_file.write("<li><a href=\"" + value[0] + "\">" + value[1] + "</a></li>")
+def collect_bookmarks_recursive(node, path=""):
+    """Recursively collect bookmarks with their full path."""
+    bookmarks = []
+    
+    if isinstance(node, dict):
+        for key, value in node.items():
+            current_path = f"{path}/{key}" if path else key
+            
+            # Check if this is a leaf node (URL)
+            if isinstance(value, str):
+                # It's a URL
+                bookmarks.append({
+                    'name': current_path,
+                    'url': value,
+                    'display': key
+                })
+            elif isinstance(value, list) and len(value) == 2:
+                # It's a [URL, display_name] pair
+                bookmarks.append({
+                    'name': current_path,
+                    'url': value[0],
+                    'display': value[1]
+                })
+            elif isinstance(value, dict):
+                # It's a nested structure, recurse
+                bookmarks.extend(collect_bookmarks_recursive(value, current_path))
+    
+    return bookmarks
 
-def gen_col_headers(html_file, file_dict):
-    for key in file_dict:
-        html_file.write("<li>\n")
-        html_file.write("<h1>" + key + "</h1>\n")
-        html_file.write("<ul>\n")
+def collect_bookmarks(file_dict):
+    """Collect all bookmarks from the config into a flat list."""
+    bookmarks = []
+    
+    for tree_key in file_dict:
+        if tree_key.split("_")[0] == "tree":
+            bookmarks.extend(collect_bookmarks_recursive(file_dict[tree_key]))
+    
+    return bookmarks
 
-        # generate list indices
-        gen_list_indices(html_file, file_dict[key])
-
-        html_file.write("</ul>\n")
-        html_file.write("</li>\n")
-
-def gen_columns(html_file, file_dict):
-    for key in file_dict:
-        if key.split("_")[0] == "tree":
-            html_file.write("<div class=\"column\">\n")
-            html_file.write("<div class=\"tree\">\n")
-            html_file.write("<h1>.</h1>\n")
-            html_file.write("<ul>\n")
-
-            # generate the column headers
-            gen_col_headers(html_file, file_dict[key])
-
-            html_file.write("</ul>\n")
-            html_file.write("</div>\n")
-            html_file.write("</div>\n")
 
 
 def gen_html(file_dict):
     print("Generating index.html...")
 
+    # Collect all bookmarks
+    bookmarks = collect_bookmarks(file_dict)
+    
+    # Copy search bundle to cache
+    import os
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    bundle_src = os.path.join(script_dir, 'skeletons/search.bundle.js')
+    bundle_dest = os.path.join(cache_dir, 'search.bundle.js')
+    copyfile(bundle_src, bundle_dest)
+    
     # open files
     skeleton_html = open(cache_dir + '/skeletons/index.html', 'r')
     cache_html = open(cache_dir + '/index.html', 'w+')
 
-    # copy skeleton_html to cache_html until Column Start comment
+    # copy skeleton_html to cache_html and inject bookmarks data
     lines = skeleton_html.readlines()
     for line in lines:
-        if line == "<!-- Columns start -->\n":
-            gen_columns(cache_html, file_dict)
+        if line == "<!-- Search Script -->\n":
+            # Load the bundled search script
+            cache_html.write("<script src=\"./search.bundle.js\"></script>\n")
+        elif line == "<!-- Bookmarks Data -->\n":
+            # Initialize search with bookmarks
+            cache_html.write("<script>\n")
+            cache_html.write("const bookmarks = " + str(bookmarks).replace("'", '"') + ";\n")
+            cache_html.write("window.addEventListener('DOMContentLoaded', function() {\n")
+            cache_html.write("  initializeSearch(bookmarks);\n")
+            cache_html.write("});\n")
+            cache_html.write("</script>\n")
         else:
             cache_html.write(line)
 

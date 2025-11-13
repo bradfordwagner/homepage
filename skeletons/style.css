@@ -3,131 +3,138 @@
     src: url("./Hack.ttf");
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Iosevka:wght@800&display=swap');
+
 :root {
-    --font: "Roboto Mono";
-    /* --background: var(--background) !important; */
-    /* --foreground: #fffffe; */
-    /* --pink: #e53170; */
-    /* --red: #f25f4c; */
-    /* --orange: #ff8906; */
-    /* --branch: 1px solid #a7a9be; */
-    --branch: 1px solid var(--color12);
+    --font: "Iosevka", "Roboto Mono", monospace;
 }
 
 html {
 /* font-size */
+    height: 100%;
 }
 
 body {
     background: var(--background);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    min-width: 500px;
+    max-width: 700px;
+    width: 80vw;
 }
 
 .prompt {
     font-family: var(--font);
+    font-weight: 800;
     color: var(--color5);
-}
-
-.prompt~.prompt {
-    padding: 1.5rem 0 0.3125rem;
+    margin-bottom: 0.5rem;
 }
 
 span {
     color: var(--color10);
 }
 
-h1 {
-    display: inline;
-    font-family: var(--font);
-    font-size: 1rem;
-    font-weight: normal;
-    color: var(--color9);
-}
-
-.tree > ul {
-    margin: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-ul {
-    list-style: none;
-    padding-left: 2.5rem;
-    white-space:nowrap;
-}
-
-li {
+.search-wrapper {
     position: relative;
+    width: 100%;
 }
 
-li::before, li::after {
-    content: "";
-    position: absolute;
-    left: -0.75rem;
-}
-
-li::before {
-    border-top: var(--branch);
-    top: 0.75rem;
-    width: 0.5rem;
-}
-
-li::after {
-    border-left: var(--branch);
-    height: 100%;
-    top: 0.25rem;
-}
-
-li:last-child::after {
-    height: 0.5rem;
-}
-
-a {
+#search-input {
     font-family: var(--font);
-    font-size: 1rem;
-    color: var(--color6);
-    text-decoration: none;
-    outline: none;
-}
-
-a:hover {
-    color: var(--color12);
-    background: var(--background);
-}
-
-form h1 {
-    padding-left: 0.125rem;
-}
-
-input {
-    font-family: var(--font);
+    font-weight: 800;
     font-size: 1rem;
     color: var(--color6);
     background-color: var(--background);
-    border-width: 1px;
-    border-color: var(--color12);
-    border-style: solid;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    border: 1px solid var(--color12);
+    padding: 12px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
 }
 
-.column {
-  flex: 50%;
-  padding: 5px;
+#search-input:focus {
+    border-color: var(--color10);
 }
 
-.row {
-  display: flex;
+#search-input::placeholder {
+    color: var(--color8);
+    opacity: 0.6;
 }
 
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
+#results-container {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--background);
+    border: 1px solid var(--color12);
+    border-top: none;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.result-item {
+    font-family: var(--font);
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color8);
+    transition: background-color 0.1s ease;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item:hover,
+.result-item.selected {
+    background: var(--color12);
+    color: var(--background);
+}
+
+.result-name {
+    color: var(--color6);
+}
+
+.result-item:hover .result-name,
+.result-item.selected .result-name {
+    color: var(--background);
+}
+
+.no-results {
+    font-family: var(--font);
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--color8);
+    padding: 12px 16px;
+    text-align: center;
+}
+
+/* Custom scrollbar for results */
+#results-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#results-container::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+#results-container::-webkit-scrollbar-thumb {
+    background: var(--color12);
+    border-radius: 4px;
+}
+
+#results-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color10);
 }
