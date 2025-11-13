@@ -1,5 +1,5 @@
-font_size: 22
-theme: void
+font_size: 14
+theme: tokyo-night
 tree_1:
   general:
     github: "https://www.github.com/"

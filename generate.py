@@ -70,6 +70,56 @@ def collect_bookmarks(file_dict):
     
     return bookmarks
 
+def gen_tree_item(html_file, name, value, path=""):
+    """Generate a single tree item (link) with data attributes for filtering."""
+    full_path = f"{path}/{name}" if path else name
+    if isinstance(value, str):
+        html_file.write(f'<li class="tree-item" data-path="{full_path}"><a href="{value}">{name}</a></li>\n')
+    elif isinstance(value, list) and len(value) == 2:
+        display_name = value[1]
+        html_file.write(f'<li class="tree-item" data-path="{full_path}" data-display="{display_name}"><a href="{value[0]}">{display_name}</a></li>\n')
+
+def gen_tree_recursive(html_file, node, level=0, path=""):
+    """Recursively generate tree structure."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            current_path = f"{path}/{key}" if path else key
+            if isinstance(value, dict):
+                # It's a category/folder
+                html_file.write(f'<li class="tree-category" data-category="{current_path}">\n')
+                html_file.write(f'<h1>{key}</h1>\n')
+                html_file.write(f'<ul>\n')
+                gen_tree_recursive(html_file, value, level + 1, current_path)
+                html_file.write(f'</ul>\n')
+                html_file.write(f'</li>\n')
+            else:
+                # It's a leaf (link)
+                gen_tree_item(html_file, key, value, path)
+
+def gen_tree_columns(file_dict):
+    """Generate the tree columns HTML."""
+    from io import StringIO
+    html_buffer = StringIO()
+    
+    html_buffer.write('<div class="row">\n')
+    
+    for tree_key in sorted(file_dict.keys()):
+        if tree_key.split("_")[0] == "tree":
+            html_buffer.write('<div class="column">\n')
+            html_buffer.write('<div class="tree">\n')
+            html_buffer.write('<h1>.</h1>\n')
+            html_buffer.write('<ul>\n')
+            
+            gen_tree_recursive(html_buffer, file_dict[tree_key])
+            
+            html_buffer.write('</ul>\n')
+            html_buffer.write('</div>\n')
+            html_buffer.write('</div>\n')
+    
+    html_buffer.write('</div>\n')
+    
+    return html_buffer.getvalue()
+
 
 
 def gen_html(file_dict):
@@ -77,6 +127,9 @@ def gen_html(file_dict):
 
     # Collect all bookmarks
     bookmarks = collect_bookmarks(file_dict)
+    
+    # Generate tree columns HTML
+    tree_html = gen_tree_columns(file_dict)
     
     # Copy search bundle to cache
     import os
@@ -92,7 +145,10 @@ def gen_html(file_dict):
     # copy skeleton_html to cache_html and inject bookmarks data
     lines = skeleton_html.readlines()
     for line in lines:
-        if line == "<!-- Search Script -->\n":
+        if line == "<!-- Tree Columns -->\n":
+            # Inject the tree visualization
+            cache_html.write(tree_html)
+        elif line == "<!-- Search Script -->\n":
             # Load the bundled search script
             cache_html.write("<script src=\"./search.bundle.js\"></script>\n")
         elif line == "<!-- Bookmarks Data -->\n":

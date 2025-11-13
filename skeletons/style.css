@@ -19,16 +19,17 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    height: 100%;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 2rem 0;
 }
 
 .container {
     min-width: 500px;
-    max-width: 700px;
-    width: 80vw;
+    max-width: 90vw;
+    width: auto;
 }
 
 .prompt {
@@ -38,13 +39,120 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.prompt~.prompt {
+    padding: 1.5rem 0 0.3125rem;
+}
+
 span {
     color: var(--color10);
+}
+
+/* Tree display styles */
+.tree-display {
+    margin-bottom: 1.5rem;
+}
+
+.tree-item,
+.tree-category {
+    transition: opacity 0.15s ease-out, max-height 0.15s ease-out, margin 0.15s ease-out, padding 0.15s ease-out;
+    opacity: 1;
+    max-height: 2000px;
+    overflow: hidden;
+}
+
+.tree-item.hidden,
+.tree-category.hidden {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.column {
+    flex: 1;
+    min-width: 250px;
+}
+
+.tree > ul {
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.tree ul {
+    list-style: none;
+    padding-left: 2.5rem;
+    white-space: nowrap;
+}
+
+.tree li {
+    position: relative;
+}
+
+.tree li::before, 
+.tree li::after {
+    content: "";
+    position: absolute;
+    left: -0.75rem;
+}
+
+.tree li::before {
+    border-top: 1px solid var(--color12);
+    top: 0.75rem;
+    width: 0.5rem;
+}
+
+.tree li::after {
+    border-left: 1px solid var(--color12);
+    height: 100%;
+    top: 0.25rem;
+}
+
+.tree li:last-child::after {
+    height: 0.5rem;
+}
+
+.tree-item.selected {
+    background: var(--color12);
+}
+
+.tree-item.selected a {
+    color: var(--background);
+}
+
+h1 {
+    display: inline;
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--color9);
+}
+
+a {
+    font-family: var(--font);
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--color6);
+    text-decoration: none;
+    outline: none;
+}
+
+a:hover {
+    color: var(--color12);
+    background: var(--background);
 }
 
 .search-wrapper {
     position: relative;
     width: 100%;
+    min-width: 500px;
 }
 
 #search-input {

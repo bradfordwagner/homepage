@@ -994,7 +994,7 @@
             resultsContainer.style.display = "block";
             return;
           }
-          if (!searchInput.value) {
+          if (results.length === 0) {
             resultsContainer.style.display = "none";
             return;
           }
@@ -1011,23 +1011,83 @@
               window.location.href = item.dataset.url;
             });
           });
+          updateTreeHighlight();
+        }
+        function updateTreeHighlight() {
+          const treeItems = document.querySelectorAll(".tree-item");
+          treeItems.forEach((item) => item.classList.remove("selected"));
+          if (selectedIndex >= 0 && selectedIndex < filteredBookmarks.length) {
+            const selectedUrl = filteredBookmarks[selectedIndex].item.url;
+            const matchingTreeItem = Array.from(treeItems).find((treeItem) => {
+              const link = treeItem.querySelector("a");
+              return link && link.href === selectedUrl;
+            });
+            if (matchingTreeItem) {
+              matchingTreeItem.classList.add("selected");
+            }
+          }
         }
         function updateSelection() {
           const items = document.querySelectorAll(".result-item");
+          const treeItems = document.querySelectorAll(".tree-item");
+          treeItems.forEach((item) => item.classList.remove("selected"));
           items.forEach((item, index) => {
             if (index === selectedIndex) {
               item.classList.add("selected");
               item.scrollIntoView({ block: "nearest" });
+              const url = item.dataset.url;
+              const matchingTreeItem = Array.from(treeItems).find((treeItem) => {
+                const link = treeItem.querySelector("a");
+                return link && link.href === url;
+              });
+              if (matchingTreeItem) {
+                matchingTreeItem.classList.add("selected");
+              }
             } else {
               item.classList.remove("selected");
             }
           });
         }
+        function filterTreeVisualization(query) {
+          const treeItems = document.querySelectorAll(".tree-item");
+          const treeCategories = document.querySelectorAll(".tree-category");
+          if (!query) {
+            treeItems.forEach((item) => item.classList.remove("hidden"));
+            treeCategories.forEach((cat) => cat.classList.remove("hidden"));
+            return;
+          }
+          const results = fzf.find(query);
+          const matchingPaths = new Set(results.map((r) => r.item.name));
+          treeItems.forEach((item) => {
+            const path = item.dataset.path;
+            const display = item.dataset.display || "";
+            const isMatch = Array.from(matchingPaths).some(
+              (matchPath) => matchPath === path || matchPath.endsWith("/" + display)
+            );
+            if (isMatch) {
+              item.classList.remove("hidden");
+            } else {
+              item.classList.add("hidden");
+            }
+          });
+          treeCategories.forEach((category) => {
+            const ul = category.querySelector("ul");
+            const visibleChildren = ul.querySelectorAll(".tree-item:not(.hidden), .tree-category:not(.hidden)");
+            if (visibleChildren.length === 0) {
+              category.classList.add("hidden");
+            } else {
+              category.classList.remove("hidden");
+            }
+          });
+        }
         searchInput.addEventListener("input", (e) => {
           const query = e.target.value;
+          filterTreeVisualization(query);
           if (!query) {
-            filteredBookmarks = [];
-            resultsContainer.style.display = "none";
+            const results2 = bookmarks.map((item) => ({ item, score: 0 }));
+            filteredBookmarks = results2;
+            selectedIndex = 0;
+            renderResults(results2);
             return;
           }
           const results = fzf.find(query);
@@ -1036,13 +1096,13 @@
           renderResults(results);
         });
         searchInput.addEventListener("keydown", (e) => {
-          if (e.key === "ArrowDown") {
+          if (e.key === "ArrowDown" || e.key === "Tab" && !e.shiftKey) {
             e.preventDefault();
             if (selectedIndex < filteredBookmarks.length - 1) {
               selectedIndex++;
               updateSelection();
             }
-          } else if (e.key === "ArrowUp") {
+          } else if (e.key === "ArrowUp" || e.key === "Tab" && e.shiftKey) {
             e.preventDefault();
             if (selectedIndex > 0) {
               selectedIndex--;
@@ -1073,6 +1133,10 @@
           }
         });
         searchInput.focus();
+        const initialResults = bookmarks.map((item) => ({ item, score: 0 }));
+        filteredBookmarks = initialResults;
+        selectedIndex = 0;
+        renderResults(initialResults);
       };
     }
   });
