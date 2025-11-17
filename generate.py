@@ -64,9 +64,16 @@ def collect_bookmarks(file_dict):
     """Collect all bookmarks from the config into a flat list."""
     bookmarks = []
     
-    for tree_key in sorted(file_dict.keys()):
-        if tree_key.split("_")[0] == "tree":
-            bookmarks.extend(collect_bookmarks_recursive(file_dict[tree_key]))
+    # Support new 'trees' list format
+    if 'trees' in file_dict and isinstance(file_dict['trees'], list):
+        for tree in file_dict['trees']:
+            if 'bookmarks' in tree:
+                bookmarks.extend(collect_bookmarks_recursive(tree['bookmarks']))
+    else:
+        # Backward compatibility: support old tree_N format
+        for tree_key in sorted(file_dict.keys()):
+            if tree_key.split("_")[0] == "tree":
+                bookmarks.extend(collect_bookmarks_recursive(file_dict[tree_key]))
     
     # Add index to preserve original order
     for i, bookmark in enumerate(bookmarks):
@@ -107,18 +114,39 @@ def gen_tree_columns(file_dict):
     
     html_buffer.write('<div class="row">\n')
     
-    for tree_key in sorted(file_dict.keys()):
-        if tree_key.split("_")[0] == "tree":
-            html_buffer.write('<div class="column">\n')
-            html_buffer.write('<div class="tree">\n')
-            html_buffer.write('<h1>.</h1>\n')
-            html_buffer.write('<ul>\n')
-            
-            gen_tree_recursive(html_buffer, file_dict[tree_key])
-            
-            html_buffer.write('</ul>\n')
-            html_buffer.write('</div>\n')
-            html_buffer.write('</div>\n')
+    # Support new 'trees' list format
+    if 'trees' in file_dict and isinstance(file_dict['trees'], list):
+        for tree in file_dict['trees']:
+            if 'bookmarks' in tree:
+                # Optional: support column_width property for future use
+                column_width = tree.get('column_width', 1)
+                html_buffer.write('<div class="column"')
+                if column_width != 1:
+                    html_buffer.write(f' style="flex: {column_width}"')
+                html_buffer.write('>\n')
+                html_buffer.write('<div class="tree">\n')
+                html_buffer.write('<h1>.</h1>\n')
+                html_buffer.write('<ul>\n')
+                
+                gen_tree_recursive(html_buffer, tree['bookmarks'])
+                
+                html_buffer.write('</ul>\n')
+                html_buffer.write('</div>\n')
+                html_buffer.write('</div>\n')
+    else:
+        # Backward compatibility: support old tree_N format
+        for tree_key in sorted(file_dict.keys()):
+            if tree_key.split("_")[0] == "tree":
+                html_buffer.write('<div class="column">\n')
+                html_buffer.write('<div class="tree">\n')
+                html_buffer.write('<h1>.</h1>\n')
+                html_buffer.write('<ul>\n')
+                
+                gen_tree_recursive(html_buffer, file_dict[tree_key])
+                
+                html_buffer.write('</ul>\n')
+                html_buffer.write('</div>\n')
+                html_buffer.write('</div>\n')
     
     html_buffer.write('</div>\n')
     

@@ -44,25 +44,27 @@ To re-generate the html/css after editing the config, execute `starttree.py` fro
 ```yaml
 font_size: 22 # specify font size
 theme: void # specify the name of a theme in the themes/ directory, or use 'pywal'
-tree_1: # each column should be named 'tree_X' where X is unique for each tree.
-  general: # Header name
-    github: "https://www.github.com/" # Link-text: url
-    gmail: "https://mail.google.com/"
-  reddit:
-    # the following is an example of naming a link something with a space,
-    # or containing characters that cannot be in a yaml variable name.
-    frontpage: 
-      - "https://www.reddit.com/"
-      - "front page"
-    unixporn: "https://www.reddit.com/r/unixporn/"
-tree_2:
-  other:
-    archwiki: 
-      - "https://archlinux.org/"
-      - "arch wiki"
-    hulu: "https://www.hulu.com/"
-    netflix: "https://www.netflix.com/"
-    youtube: "https://www.youtube.com/"
+trees: # list of tree columns, order determines display order
+  - bookmarks: # each tree contains bookmarks
+      general: # Header name
+        github: "https://www.github.com/" # Link-text: url
+        gmail: "https://mail.google.com/"
+      reddit:
+        # the following is an example of naming a link something with a space,
+        # or containing characters that cannot be in a yaml variable name.
+        frontpage: 
+          - "https://www.reddit.com/"
+          - "front page"
+        unixporn: "https://www.reddit.com/r/unixporn/"
+  - column_width: 1 # optional: column width for flex layout (defaults to 1)
+    bookmarks:
+      other:
+        archwiki: 
+          - "https://archlinux.org/"
+          - "arch wiki"
+        hulu: "https://www.hulu.com/"
+        netflix: "https://www.netflix.com/"
+        youtube: "https://www.youtube.com/"
 ```
 
 # Themes
