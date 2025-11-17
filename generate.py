@@ -122,7 +122,7 @@ def gen_tree_columns(file_dict):
                 column_width = tree.get('column_width', 1)
                 html_buffer.write('<div class="column"')
                 if column_width != 1:
-                    html_buffer.write(f' style="flex: {column_width}"')
+                    html_buffer.write(f' style="flex-grow: {column_width}"')
                 html_buffer.write('>\n')
                 html_buffer.write('<div class="tree">\n')
                 html_buffer.write('<h1>.</h1>\n')
